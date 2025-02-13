@@ -5,17 +5,23 @@ class Calculator {
 
     evaluate(expression) {
         try {
+            // Gérer la division Euclidienne comme une opération spéciale
+            expression = expression.replace(/(\d+) div (\d+)/g, (match, a, b) => `${Math.floor(parseFloat(a) / parseFloat(b))}`);
+            
+            // Gérer la racine carrée comme une opération spéciale
+            expression = expression.replace(/sqrt\(([^)]+)\)/g, (match, number) => Math.sqrt(parseFloat(number)));
+    
             const postfix = this.infixToPostfix(expression);
             return this.evaluatePostfix(postfix);
         } catch (error) {
             throw new Error('Erreur de calcul: ' + error.message);
         }
-    }
+    }    
 
     infixToPostfix(expression) {
         let output = [];
         let stack = [];
-        let tokens = expression.match(/\d+|[-+*/%^()]/g);
+        let tokens = expression.match(/\d+(\.\d+)?|[-+*/%^()]/g);  // Support pour les nombres à décimales
 
         if (!tokens) {
             throw new Error('Expression invalide');
@@ -23,7 +29,7 @@ class Calculator {
 
         for (let token of tokens) {
             if (!isNaN(token)) {
-                output.push(parseInt(token));
+                output.push(parseFloat(token));
             } else if (token in this.operators) {
                 while (stack.length && this.operators[stack[stack.length - 1]] >= this.operators[token]) {
                     output.push(stack.pop());
@@ -62,15 +68,17 @@ class Calculator {
     }
 
     applyOperator(op, a, b) {
+        let result;
         switch (op) {
-            case '+': return a + b;
-            case '-': return a - b;
-            case '*': return this.multiply(a, b);
-            case '/': return this.divide(a, b);
-            case '%': return a % b;
-            case '^': return this.power(a, b);
+            case '+': result = a + b; break;
+            case '-': result = a - b; break;
+            case '*': result = this.multiply(a, b); break;
+            case '/': result = this.divide(a, b); break;
+            case '%': result = a % b; break;
+            case '^': result = this.power(a, b); break;
             default: throw new Error('Opérateur inconnu');
         }
+        return this.round(result);
     }
 
     multiply(a, b) {
@@ -78,7 +86,7 @@ class Calculator {
         for (let i = 0; i < Math.abs(b); i++) {
             result += Math.abs(a);
         }
-        return (a < 0) ^ (b < 0) ? -result : result;
+        return this.round((a < 0) ^ (b < 0) ? -result : result);
     }
 
     divide(a, b) {
@@ -92,7 +100,15 @@ class Calculator {
             a -= b;
             quotient++;
         }
-        return neg ? -quotient : quotient;
+        return this.round(neg ? -quotient : quotient);
+    }
+
+    power(a, b) {
+        return this.round(Math.pow(a, b));
+    }
+
+    round(value) {
+        return Math.round(value * 100) / 100;
     }
 }
 
