@@ -44,9 +44,14 @@ git clone git@github.com:AndyDCK/EpitestTechniqueAndy.git
 npm install
 ```
 
-### 3. Exécuter
+### 3. Exécuter l'interface web
 ```bash
 node src/server.js
+```
+
+### 3.1. Exécuter sur terminal
+```bash
+node src/calculatorTerminal.js
 ```
 
 Disponible sur l'URL: http://localhost:3000
