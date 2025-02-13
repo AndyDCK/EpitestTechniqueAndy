@@ -46,6 +46,19 @@
             transition: background-color 0.3s;
         }
 
+        .euclideButton {
+            padding: 10px;
+            width: 115px;
+            margin: 5px;
+            font-size: 18px;
+            border: none;
+            background-color: #16a085;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
         button:hover {
             background-color: #1abc9c;
         }
@@ -59,7 +72,7 @@
 
         .terminal-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             margin-top: 20px;
             background-color: #1e272e;
             padding: 20px;
@@ -73,6 +86,12 @@
             background-color: #000;
             color: #00FF00;
         }
+
+        .terminal.xterm.xterm-dom-renderer-owner-1 {
+            height: 300px !important;
+            width: 700px;
+        }
+
     </style>
 </head>
 <body>
@@ -101,7 +120,7 @@
         <button onclick="calculate()">=</button>
         <button onclick="appendToExpression('^')">^</button>
         <button onclick="appendToExpression('sqrt(')">√</button>
-        <button onclick="appendToExpression('//')">Div Euclidienne</button>
+        <button class="euclideButton" onclick="appendToExpression('//')">Div Euclidienne</button>
     </div>
 
     <div id="result"></div>
