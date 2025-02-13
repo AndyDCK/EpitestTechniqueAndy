@@ -16,7 +16,7 @@ class Calculator {
         } catch (error) {
             throw new Error('Erreur de calcul: ' + error.message);
         }
-    }    
+    }
 
     infixToPostfix(expression) {
         let output = [];
@@ -51,7 +51,7 @@ class Calculator {
         }
         return output;
     }
-    
+
     evaluatePostfix(postfix) {
         let stack = [];
         for (let token of postfix) {
