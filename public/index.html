@@ -3,27 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Calculatrice avec Terminal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <style>
+        #terminal {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+            background-color: #000;
+            color: #00FF00;
+        }
+    </style>
 </head>
 <body>
-    <h1>Calculatrice</h1>
+    <h1>Calculatrice avec Terminal</h1>
     <input type="text" id="expression" placeholder="Entrez une expression">
     <button onclick="calculate()">Calculer</button>
     <div id="result"></div>
 
+    <div id="terminal"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script>
+        const terminal = new Terminal();
+        terminal.open(document.getElementById('terminal'));
+        terminal.write('Bienvenue dans le terminal ! Entrez "help" pour les commandes disponibles.\r\n');
+
+        // Calculer via l'API
         async function calculate() {
             const expression = document.getElementById('expression').value;
-            const response = await fetch('/calculate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ expression })
-            });
-            const data = await response.json();
-            document.getElementById('result').innerText = `Résultat : ${data.result}`;
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expression })
+                });
+                const data = await response.json();
+                document.getElementById('result').innerText = `Résultat : ${data.result}`;
+                terminal.write(`Calculé: ${data.result}\r\n`);
+            } catch (error) {
+                console.error("Erreur lors du calcul :", error);
+                document.getElementById('result').innerText = `Erreur : ${error.message}`;
+                terminal.write(`Erreur: ${error.message}\r\n`);
+            }
+        }
+
+        terminal.onKey(e => {
+            if (e.key === '\r') {
+                const command = terminal.buffer.active.getLine(terminal.buffer.active.cursorY).translateToString();
+                handleCommand(command.trim());
+            } else {
+                terminal.write(e.key);
+            }
+        });
+
+        // Pour gérer les commandes du terminal
+        function handleCommand(command) {
+            if (command === 'exit') {
+                terminal.write('Au revoir !\r\n');
+            } else if (command === 'help') {
+                terminal.write('Commandes disponibles: \r\n');
+                terminal.write('1. calcul <expression> - Calculer une expression \r\n');
+                terminal.write('2. exit - Quitter le terminal\r\n');
+            } else if (command.startsWith('calcul ')) {
+                const expression = command.slice(7);
+                calculateExpression(expression);
+            } else {
+                terminal.write(`Commande inconnue: ${command}\r\n`);
+            }
+        }
+
+        // On calcul l'expression dans le terminal
+        async function calculateExpression(expression) {
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expression })
+                });
+                const data = await response.json();
+                terminal.write(`Résultat: ${data.result}\r\n`);
+            } catch (error) {
+                terminal.write(`Erreur: ${error.message}\r\n`);
+            }
         }
     </script>
 </body>
